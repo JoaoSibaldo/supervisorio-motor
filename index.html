@@ -1,0 +1,27 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Supervisório PID - Motor</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <div class="container">
+    <h1>Supervisório - Controle PID do Motor</h1>
+    <div class="status">
+      <button onclick="acionarMotor(true)">Ligar</button>
+      <button onclick="acionarMotor(false)">Desligar</button>
+      <label for="setpoint">Setpoint (RPM):</label>
+      <input type="number" id="setpoint" value="20" onchange="alterarSetpoint()" />
+    </div>
+    <div class="chart-container">
+      <canvas id="graficoRPM"></canvas>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/mqtt/dist/mqtt.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
