@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Supervisório - Controle PID</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Controle de Motor PID</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -13,23 +12,26 @@
     <input type="text" id="username" placeholder="Usuário" />
     <input type="password" id="password" placeholder="Senha" />
     <button onclick="login()">Entrar</button>
-    <p id="login-error" style="color: red;"></p>
   </div>
 
-  <div id="dashboard" style="display: none;">
-    <h1>Supervisório PID - Motor IFPB Cajazeiras</h1>
-    <div class="status-container">
-      <div class="led" id="led-desligado"></div> Motor Desligado
-      <div class="led" id="led-ligado"></div> Motor Ligado
+  <div id="app-container" style="display:none;">
+    <h1>Sistema de Controle PID - IFPB Cajazeiras</h1>
+    <div class="status">
+      <span>Motor:</span>
+      <div id="led-indicator" class="led off"></div>
     </div>
-    <div id="motor-animation"></div>
-    <canvas id="rpmChart" width="800" height="400"></canvas>
-    <input type="number" id="setpoint" placeholder="Novo Setpoint (RPM)" />
-    <button onclick="enviarSetpoint()">Enviar Setpoint</button>
-    <button onclick="acionarMotor()">Ligar</button>
-    <button onclick="desligarMotor()">Desligar</button>
+    <img id="motor-shaft" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Electric_motor_rotor_animation.gif/200px-Electric_motor_rotor_animation.gif" alt="Eixo girando" style="display:none;" />
+    
+    <div class="controls">
+      <label for="setpoint">Setpoint (RPM):</label>
+      <input type="number" id="setpoint" min="0" max="150" value="0"/>
+      <button onclick="sendSetpoint()">Enviar</button>
+      <button onclick="toggleMotor()">Ligar/Desligar Motor</button>
+    </div>
+    
+    <canvas id="rpmChart"></canvas>
   </div>
-
+  
   <script src="https://cdn.jsdelivr.net/npm/mqtt/dist/mqtt.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="script.js"></script>

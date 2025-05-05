@@ -1,37 +1,47 @@
-
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
-  text-align: center;
+  font-family: sans-serif;
+  background: #f0f2f5;
+  margin: 0;
   padding: 20px;
+  text-align: center;
 }
-#login-container {
-  background-color: white;
-  padding: 30px;
+h1 { color: #333; }
+#login-container, #app-container {
+  max-width: 600px;
   margin: auto;
-  width: 300px;
-  border-radius: 10px;
-  box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
-#dashboard {
-  max-width: 900px;
-  margin: auto;
+input, button {
+  padding: 10px;
+  margin: 5px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+button {
+  background: #007BFF;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+button:hover { background: #0056b3; }
+.status {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
 }
 .led {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  display: inline-block;
-  margin: 0 10px;
 }
-#led-ligado { background-color: green; display: none; }
-#led-desligado { background-color: red; display: none; }
-#motor-animation {
-  width: 100px;
-  height: 100px;
-  margin: 20px auto;
-  background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Rotating_gear.gif/200px-Rotating_gear.gif');
-  background-size: contain;
-  background-repeat: no-repeat;
-  display: none;
+.led.on { background: green; }
+.led.off { background: red; }
+canvas {
+  margin-top: 20px;
+  width: 100%;
+  max-height: 300px;
 }
