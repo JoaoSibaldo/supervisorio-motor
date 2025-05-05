@@ -1,55 +1,94 @@
 
-const client = mqtt.connect("wss://test.mosquitto.org:8081");
+let client = mqtt.connect("wss://test.mosquitto.org:8081/mqtt");
+let chart;
+let tempo = 0;
 
 let dadosRPM = [];
-let tempo = [];
+let dadosTempo = [];
 
-const ctx = document.getElementById("graficoRPM").getContext("2d");
-const grafico = new Chart(ctx, {
-  type: "line",
-  data: {
-    labels: tempo,
-    datasets: [{
-      label: "RPM da Saída",
-      data: dadosRPM,
-      borderColor: "#2d89ef",
-      fill: false,
-      tension: 0.1
-    }]
-  },
-  options: {
-    scales: {
-      x: { title: { display: true, text: "Tempo (s)" } },
-      y: { title: { display: true, text: "RPM" }, beginAtZero: true }
-    }
-  }
-});
-
-client.on("connect", () => {
+client.on("connect", function () {
   console.log("Conectado ao broker MQTT");
   client.subscribe("IFPBCajazeiras/usuario01/data");
   client.subscribe("IFPBCajazeiras/usuario01/Time");
 });
 
-client.on("message", (topic, message) => {
+client.on("message", function (topic, message) {
   if (topic === "IFPBCajazeiras/usuario01/data") {
-    const rpm = parseFloat(message.toString());
+    let rpm = parseFloat(message.toString());
     dadosRPM.push(rpm);
-    if (dadosRPM.length > 100) dadosRPM.shift();
-    grafico.update();
   } else if (topic === "IFPBCajazeiras/usuario01/Time") {
-    const t = parseFloat(message.toString());
-    tempo.push(t);
-    if (tempo.length > 100) tempo.shift();
-    grafico.update();
+    let t = parseFloat(message.toString());
+    dadosTempo.push(t);
+    atualizarGrafico();
   }
 });
 
-function acionarMotor(status) {
-  client.publish("IFPBCajazeiras/usuario01/Acionamento", status.toString());
+function login() {
+  const user = document.getElementById("username").value;
+  const pass = document.getElementById("password").value;
+  if (user === "TCC_CJ" && pass === "CJ_IFPB") {
+    document.getElementById("login-container").style.display = "none";
+    document.getElementById("dashboard").style.display = "block";
+    inicializarGrafico();
+  } else {
+    document.getElementById("login-error").innerText = "Credenciais inválidas!";
+  }
 }
 
-function alterarSetpoint() {
-  const valor = document.getElementById("setpoint").value;
-  client.publish("IFPBCajazeiras/usuario01/setpoint", valor.toString());
+function inicializarGrafico() {
+  const ctx = document.getElementById("rpmChart").getContext("2d");
+  chart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: dadosTempo,
+      datasets: [{
+        label: "RPM da saída",
+        data: dadosRPM,
+        borderColor: "blue",
+        borderWidth: 2,
+        fill: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      animation: false,
+      scales: {
+        x: { title: { display: true, text: "Tempo (s)" } },
+        y: {
+          title: { display: true, text: "RPM" },
+          min: 0,
+          max: 150,
+        }
+      }
+    }
+  });
+}
+
+function atualizarGrafico() {
+  chart.data.labels = dadosTempo;
+  chart.data.datasets[0].data = dadosRPM;
+  chart.update();
+
+  if (dadosRPM[dadosRPM.length - 1] > 0) {
+    document.getElementById("led-ligado").style.display = "inline-block";
+    document.getElementById("led-desligado").style.display = "none";
+    document.getElementById("motor-animation").style.display = "block";
+  } else {
+    document.getElementById("led-ligado").style.display = "none";
+    document.getElementById("led-desligado").style.display = "inline-block";
+    document.getElementById("motor-animation").style.display = "none";
+  }
+}
+
+function enviarSetpoint() {
+  const sp = document.getElementById("setpoint").value;
+  client.publish("IFPBCajazeiras/usuario01/setpoint", sp);
+}
+
+function acionarMotor() {
+  client.publish("IFPBCajazeiras/usuario01/Acionamento", "true");
+}
+
+function desligarMotor() {
+  client.publish("IFPBCajazeiras/usuario01/Acionamento", "false");
 }
