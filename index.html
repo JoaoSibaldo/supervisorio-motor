@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Controle de Motor - IFPB Cajazeiras</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="login-container">
+    <h2>Login</h2>
+    <input type="text" id="username" placeholder="Usuário" />
+    <input type="password" id="password" placeholder="Senha" />
+    <button onclick="login()">Entrar</button>
+    <p id="login-error" class="hidden">Usuário ou senha incorretos</p>
+  </div>
+
+  <div id="app" class="hidden">
+    <h1>Controle de Motor - IFPB Cajazeiras</h1>
+
+    <div class="status">
+      <div id="led" class="led red"></div>
+      <span id="status-text">Motor Desligado</span>
+    </div>
+
+    <div id="spinner" class="hidden"></div>
+
+    <div class="controls">
+      <button onclick="ligarMotor()">Ligar</button>
+      <button onclick="desligarMotor()">Desligar</button>
+      <input type="number" id="setpoint-input" placeholder="Setpoint (RPM)" />
+      <button onclick="enviarSetpoint()">Enviar Setpoint</button>
+    </div>
+
+    <canvas id="rpmChart"></canvas>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

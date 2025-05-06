@@ -1,72 +1,103 @@
-const mqttClient = mqtt.connect('wss://test.mosquitto.org:8081/mqtt');
+let client;
+let chart;
+let tempo = 0;
 let motorLigado = false;
-let startTime = null;
-const MAX_DATA_POINTS = 300;
-
-const ctx = document.getElementById('rpmChart').getContext('2d');
-const chart = new Chart(ctx, {
-  type: 'line',
-  data: {
-    labels: [],
-    datasets: [{
-      label: 'Velocidade (RPM)',
-      borderColor: 'blue',
-      data: [],
-      fill: false,
-    }]
-  },
-  options: {
-    animation: false,
-    scales: {
-      x: { title: { display: true, text: 'Tempo (s)' } },
-      y: { title: { display: true, text: 'RPM' }, min: 0, max: 150 }
-    }
-  }
-});
-
-mqttClient.on('connect', () => {
-  mqttClient.subscribe('IFPBCajazeiras/usuario01/data');
-  mqttClient.subscribe('IFPBCajazeiras/usuario01/Time');
-});
-
-mqttClient.on('message', (topic, message) => {
-  const value = parseFloat(message.toString());
-  if (topic.endsWith('data') && motorLigado) {
-    const time = (Date.now() - startTime) / 1000;
-    if (chart.data.labels.length >= MAX_DATA_POINTS) {
-      chart.data.labels.shift();
-      chart.data.datasets[0].data.shift();
-    }
-    chart.data.labels.push(time.toFixed(1));
-    chart.data.datasets[0].data.push(value);
-    chart.update();
-  }
-});
-
-function toggleMotor() {
-  motorLigado = !motorLigado;
-  document.getElementById('led-indicator').className = motorLigado ? 'led on' : 'led off';
-  document.getElementById('motor-shaft').style.display = motorLigado ? 'block' : 'none';
-  if (motorLigado) {
-    startTime = Date.now();
-    chart.data.labels = [];
-    chart.data.datasets[0].data = [];
-  }
-  mqttClient.publish('IFPBCajazeiras/usuario01/Acionamento', motorLigado ? '1' : '0');
-}
-
-function sendSetpoint() {
-  const value = document.getElementById('setpoint').value;
-  mqttClient.publish('IFPBCajazeiras/usuario01/setpoint', value);
-}
 
 function login() {
-  const u = document.getElementById('username').value;
-  const p = document.getElementById('password').value;
-  if (u === 'TCC_CJ' && p === 'CJ_IFPB') {
-    document.getElementById('login-container').style.display = 'none';
-    document.getElementById('app-container').style.display = 'block';
+  const user = document.getElementById("username").value;
+  const pass = document.getElementById("password").value;
+  if (user === "TCC_CJ" && pass === "CJ_IFPB") {
+    document.getElementById("login-container").classList.add("hidden");
+    document.getElementById("app").classList.remove("hidden");
+    iniciarApp();
   } else {
-    alert('Login inválido.');
+    document.getElementById("login-error").classList.remove("hidden");
   }
+}
+
+function iniciarApp() {
+  client = mqtt.connect("wss://test.mosquitto.org:8081");
+
+  client.on("connect", () => {
+    client.subscribe("IFPBCajazeiras/usuario01/data");
+    client.subscribe("IFPBCajazeiras/usuario01/Time");
+  });
+
+  const ctx = document.getElementById("rpmChart").getContext("2d");
+  chart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: [],
+      datasets: [
+        {
+          label: "RPM",
+          data: [],
+          borderColor: "blue",
+          fill: false
+        },
+        {
+          label: "Setpoint",
+          data: [],
+          borderColor: "orange",
+          borderDash: [5, 5],
+          fill: false
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      animation: false,
+      scales: {
+        y: {
+          min: 0,
+          max: 150,
+          title: {
+            display: true,
+            text: 'RPM'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Tempo (s)'
+          }
+        }
+      }
+    }
+  });
+
+  client.on("message", (topic, message) => {
+    if (topic === "IFPBCajazeiras/usuario01/data") {
+      const rpm = parseFloat(message.toString());
+      chart.data.labels.push(tempo);
+      chart.data.datasets[0].data.push(rpm);
+      chart.update();
+    }
+
+    if (topic === "IFPBCajazeiras/usuario01/Time") {
+      tempo = parseFloat(message.toString());
+    }
+  });
+}
+
+function ligarMotor() {
+  motorLigado = true;
+  client.publish("IFPBCajazeiras/usuario01/Acionamento", "ON");
+  document.getElementById("led").className = "led green";
+  document.getElementById("status-text").textContent = "Motor Ligado";
+  document.getElementById("spinner").classList.remove("hidden");
+}
+
+function desligarMotor() {
+  motorLigado = false;
+  client.publish("IFPBCajazeiras/usuario01/Acionamento", "OFF");
+  document.getElementById("led").className = "led red";
+  document.getElementById("status-text").textContent = "Motor Desligado";
+  document.getElementById("spinner").classList.add("hidden");
+}
+
+function enviarSetpoint() {
+  const sp = document.getElementById("setpoint-input").value;
+  client.publish("IFPBCajazeiras/usuario01/setpoint", sp);
+  chart.data.datasets[1].data.push(parseFloat(sp));
 }

@@ -1,47 +1,78 @@
 body {
-  font-family: sans-serif;
-  background: #f0f2f5;
-  margin: 0;
-  padding: 20px;
+  font-family: Arial, sans-serif;
   text-align: center;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
 }
-h1 { color: #333; }
-#login-container, #app-container {
-  max-width: 600px;
-  margin: auto;
-  padding: 20px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+
+h1 {
+  color: #2c3e50;
 }
-input, button {
-  padding: 10px;
-  margin: 5px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
-button {
-  background: #007BFF;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-button:hover { background: #0056b3; }
+
 .status {
   display: flex;
-  justify-content: center;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+  margin: 20px 0;
 }
+
 .led {
   width: 20px;
   height: 20px;
   border-radius: 50%;
+  margin-right: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
 }
-.led.on { background: green; }
-.led.off { background: red; }
-canvas {
-  margin-top: 20px;
-  width: 100%;
-  max-height: 300px;
+
+.red {
+  background-color: red;
+}
+
+.green {
+  background-color: green;
+}
+
+.controls {
+  margin: 20px;
+}
+
+.controls input {
+  padding: 8px;
+  margin: 5px;
+}
+
+.controls button {
+  padding: 10px 20px;
+  margin: 5px;
+  cursor: pointer;
+}
+
+#spinner {
+  margin: 20px auto;
+  border: 8px solid #f3f3f3;
+  border-top: 8px solid #3498db;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+#login-container {
+  margin-top: 100px;
+}
+
+#login-container input {
+  padding: 10px;
+  margin: 5px;
+  width: 200px;
+}
+
+.hidden {
+  display: none;
 }
